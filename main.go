@@ -2,23 +2,24 @@ package main
 
 import (
 	"otoklix/controller"
-
-	"github.com/gin-gonic/gin"
+	"otoklix/http"
+	"otoklix/repository"
+	"otoklix/service"
 )
 
 var (
-	blogController controller.BlogController = controller.NewBlogController()
+	blogRepository repository.BlogRepository = repository.NewBlogRepository()
+	blogService    service.BlogService       = service.NewBlogService(blogRepository)
+	blogController controller.BlogController = controller.NewBlogController(blogService)
+	httpRouter     http.Router               = http.NewMaxRouter()
 )
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
+	httpRouter.GET("/posts", blogController.GetBlogs)
+	httpRouter.GET("/posts/{id}", blogController.GetBlog)
+	httpRouter.POST("/posts", blogController.CreateBlog)
+	httpRouter.PUT("/posts/{id}", blogController.UpdateBlog)
+	httpRouter.DELETE("/posts/{id}", blogController.DeleteBlog)
 
-	r.POST("/posts", blogController.CreateBlog)
-	r.GET("/posts", blogController.GetBlogs)
-	r.GET("/posts/:id", blogController.GetBlog)
-	r.PUT("/posts/:id", blogController.UpdateBlog)
-	r.DELETE("/posts/:id", blogController.DeleteBlog)
-
-	r.Run(":8081")
+	httpRouter.SERVE(":8081")
 }

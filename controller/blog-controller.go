@@ -1,36 +1,44 @@
 package controller
 
 import (
+	"encoding/json"
+	"net/http"
 	"otoklix/dto"
 	"otoklix/service"
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type BlogController interface {
-	CreateBlog(c *gin.Context)
-	GetBlogs(c *gin.Context)
-	GetBlog(c *gin.Context)
-	UpdateBlog(c *gin.Context)
-	DeleteBlog(c *gin.Context)
+	CreateBlog(response http.ResponseWriter, request *http.Request)
+	GetBlogs(response http.ResponseWriter, request *http.Request)
+	GetBlog(response http.ResponseWriter, request *http.Request)
+	UpdateBlog(response http.ResponseWriter, request *http.Request)
+	DeleteBlog(response http.ResponseWriter, request *http.Request)
 }
 
 type blogController struct{}
 
 var (
-	blogService service.BlogService = service.NewBlogService()
+	blogService service.BlogService
 )
 
-func NewBlogController() BlogController {
+func NewBlogController(service service.BlogService) BlogController {
+	blogService = service
 	return &blogController{}
 }
 
-func (*blogController) CreateBlog(c *gin.Context) {
+func (*blogController) CreateBlog(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("Content-Type", "application/json")
 	var blog dto.Blogs
-	c.Bind(&blog)
+	err := json.NewDecoder(request.Body).Decode(&blog)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	if blog.Title != "" && blog.Content != "" {
 		// convert time to string
@@ -46,45 +54,59 @@ func (*blogController) CreateBlog(c *gin.Context) {
 
 		res := blogService.CreateBlog(newBlog)
 		// display success
-		c.JSON(201, res)
+		response.WriteHeader(http.StatusOK)
+		json.NewEncoder(response).Encode(res)
 	} else {
 		// display error
-		c.JSON(422, gin.H{"error": "Fields are empty"})
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"error": "Fields are empty"}`))
 	}
 }
 
-func (*blogController) GetBlogs(c *gin.Context) {
+func (*blogController) GetBlogs(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("Content-Type", "application/json")
 	res := blogService.GetBlogs()
 
 	// Display JSON result
-	c.JSON(200, res)
+	response.WriteHeader(http.StatusOK)
+	json.NewEncoder(response).Encode(res)
 }
 
-func (*blogController) GetBlog(c *gin.Context) {
+func (*blogController) GetBlog(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("Content-Type", "application/json")
 	// Get id blog
-	id, _ := strconv.Atoi(c.Params.ByName("id"))
+	params := mux.Vars(request)
+	id, _ := strconv.Atoi(params["id"])
 
 	blog := blogService.GetBlog(id)
 
 	if blog.ID != 0 {
 		// Display JSON result
-		c.JSON(200, blog)
+		response.WriteHeader(http.StatusOK)
+		json.NewEncoder(response).Encode(blog)
 	} else {
 		// Display JSON error
-		c.JSON(404, gin.H{"error": "Post not found"})
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"error": "Post not found"}`))
 	}
 }
 
-func (*blogController) UpdateBlog(c *gin.Context) {
+func (*blogController) UpdateBlog(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("Content-Type", "application/json")
 	// Get id blog
-	id, _ := strconv.Atoi(c.Params.ByName("id"))
-
+	params := mux.Vars(request)
+	id, _ := strconv.Atoi(params["id"])
+	// Get blog by id
 	blog := blogService.GetBlog(id)
 
 	if blog.Title != "" && blog.Content != "" {
 		if blog.ID != 0 {
 			var newBlog dto.Blogs
-			c.Bind(&newBlog)
+			err := json.NewDecoder(request.Body).Decode(&newBlog)
+			if err != nil {
+				http.Error(response, err.Error(), http.StatusBadRequest)
+				return
+			}
 
 			res := blogService.UpdateBlog(blog, newBlog)
 
@@ -98,20 +120,25 @@ func (*blogController) UpdateBlog(c *gin.Context) {
 				UpdatedAt:   res.UpdatedAt,
 			}
 			// Display modified data in JSON
-			c.JSON(200, output)
+			response.WriteHeader(http.StatusOK)
+			json.NewEncoder(response).Encode(output)
 		} else {
 			// Display JSON error
-			c.JSON(404, gin.H{"error": "Post not found"})
+			response.WriteHeader(http.StatusInternalServerError)
+			response.Write([]byte(`{"error": "Post not found"}`))
 		}
 	} else {
 		// Display JSON error
-		c.JSON(422, gin.H{"error": "Fields are empty"})
+		response.WriteHeader(http.StatusBadRequest)
+		response.Write([]byte(`{"error": "Fields are empty"}`))
 	}
 }
 
-func (*blogController) DeleteBlog(c *gin.Context) {
+func (*blogController) DeleteBlog(response http.ResponseWriter, request *http.Request) {
+	response.Header().Set("Content-Type", "application/json")
 	// Get id blog
-	id, _ := strconv.Atoi(c.Params.ByName("id"))
+	params := mux.Vars(request)
+	id, _ := strconv.Atoi(params["id"])
 
 	blog := blogService.GetBlog(id)
 
@@ -127,9 +154,11 @@ func (*blogController) DeleteBlog(c *gin.Context) {
 			UpdatedAt:   blog.UpdatedAt,
 		}
 		// Display JSON result
-		c.JSON(200, output)
+		response.WriteHeader(http.StatusOK)
+		json.NewEncoder(response).Encode(output)
 	} else {
 		// Display JSON error
-		c.JSON(404, gin.H{"error": "Post not found"})
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"error": "Post not found"}`))
 	}
 }

@@ -9,7 +9,7 @@ import (
 // initDb is database initialization
 func initDb() *gorm.DB {
 	// Connect to database
-	db, err := gorm.Open("sqlite3", "database/otoklix.db")
+	db, err := gorm.Open("sqlite3", "./otoklix.db")
 	checkErr(err)
 
 	return db

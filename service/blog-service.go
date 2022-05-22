@@ -18,10 +18,11 @@ type BlogService interface {
 type blogService struct{}
 
 var (
-	repo repository.BlogRepository = repository.NewBlogRepository()
+	repo repository.BlogRepository
 )
 
-func NewBlogService() BlogService {
+func NewBlogService(repository repository.BlogRepository) BlogService {
+	repo = repository
 	return &blogService{}
 }
 
