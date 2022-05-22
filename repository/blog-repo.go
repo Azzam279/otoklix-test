@@ -21,8 +21,6 @@ func NewBlogRepository() BlogRepository {
 func (*blogRepository) CreateBlog(blog datastruct.Blogs) *datastruct.Blogs {
 	// Connection to the database
 	db := initDb()
-	// Close connection database
-	defer db.Close()
 
 	// insert data
 	db.Create(&blog)
@@ -33,8 +31,6 @@ func (*blogRepository) CreateBlog(blog datastruct.Blogs) *datastruct.Blogs {
 func (*blogRepository) GetBlogs() *[]datastruct.Blogs {
 	// Connection to the database
 	db := initDb()
-	// Close connection database
-	defer db.Close()
 
 	var blogs []datastruct.Blogs
 	// SELECT * FROM blogs;
@@ -46,8 +42,6 @@ func (*blogRepository) GetBlogs() *[]datastruct.Blogs {
 func (*blogRepository) GetBlog(id int) *datastruct.Blogs {
 	// Connection to the database
 	db := initDb()
-	// Close connection database
-	defer db.Close()
 
 	var blog datastruct.Blogs
 	// SELECT * FROM blogs WHERE id = 1;
@@ -59,8 +53,6 @@ func (*blogRepository) GetBlog(id int) *datastruct.Blogs {
 func (*blogRepository) UpdateBlog(blog *datastruct.Blogs, result datastruct.Blogs) *datastruct.Blogs {
 	// Connection to the database
 	db := initDb()
-	// Close connection database
-	defer db.Close()
 
 	// update data
 	db.Model(&blog).Updates(result)
@@ -71,8 +63,6 @@ func (*blogRepository) UpdateBlog(blog *datastruct.Blogs, result datastruct.Blog
 func (*blogRepository) DeleteBlog(blog *datastruct.Blogs) *datastruct.Blogs {
 	// Connection to the database
 	db := initDb()
-	// Close connection database
-	defer db.Close()
 
 	// delete data
 	db.Delete(&blog)
