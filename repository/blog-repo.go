@@ -1,15 +1,15 @@
 package repository
 
 import (
-	"otoklix/datastruct"
+	"otoklix/dto"
 )
 
 type BlogRepository interface {
-	CreateBlog(blog datastruct.Blogs) *datastruct.Blogs
-	GetBlogs() *[]datastruct.Blogs
-	GetBlog(id int) *datastruct.Blogs
-	UpdateBlog(blog *datastruct.Blogs, result datastruct.Blogs) *datastruct.Blogs
-	DeleteBlog(blog *datastruct.Blogs) *datastruct.Blogs
+	CreateBlog(blog dto.Blogs) *dto.Blogs
+	GetBlogs() *[]dto.Blogs
+	GetBlog(id int) *dto.Blogs
+	UpdateBlog(blog *dto.Blogs, result dto.Blogs) *dto.Blogs
+	DeleteBlog(blog *dto.Blogs) *dto.Blogs
 }
 
 type blogRepository struct{}
@@ -18,7 +18,7 @@ func NewBlogRepository() BlogRepository {
 	return &blogRepository{}
 }
 
-func (*blogRepository) CreateBlog(blog datastruct.Blogs) *datastruct.Blogs {
+func (*blogRepository) CreateBlog(blog dto.Blogs) *dto.Blogs {
 	// Connection to the database
 	db := initDb()
 
@@ -28,29 +28,29 @@ func (*blogRepository) CreateBlog(blog datastruct.Blogs) *datastruct.Blogs {
 	return &blog
 }
 
-func (*blogRepository) GetBlogs() *[]datastruct.Blogs {
+func (*blogRepository) GetBlogs() *[]dto.Blogs {
 	// Connection to the database
 	db := initDb()
 
-	var blogs []datastruct.Blogs
+	var blogs []dto.Blogs
 	// SELECT * FROM blogs;
 	db.Find(&blogs)
 
 	return &blogs
 }
 
-func (*blogRepository) GetBlog(id int) *datastruct.Blogs {
+func (*blogRepository) GetBlog(id int) *dto.Blogs {
 	// Connection to the database
 	db := initDb()
 
-	var blog datastruct.Blogs
+	var blog dto.Blogs
 	// SELECT * FROM blogs WHERE id = 1;
 	db.First(&blog, id)
 
 	return &blog
 }
 
-func (*blogRepository) UpdateBlog(blog *datastruct.Blogs, result datastruct.Blogs) *datastruct.Blogs {
+func (*blogRepository) UpdateBlog(blog *dto.Blogs, result dto.Blogs) *dto.Blogs {
 	// Connection to the database
 	db := initDb()
 
@@ -60,7 +60,7 @@ func (*blogRepository) UpdateBlog(blog *datastruct.Blogs, result datastruct.Blog
 	return blog
 }
 
-func (*blogRepository) DeleteBlog(blog *datastruct.Blogs) *datastruct.Blogs {
+func (*blogRepository) DeleteBlog(blog *dto.Blogs) *dto.Blogs {
 	// Connection to the database
 	db := initDb()
 

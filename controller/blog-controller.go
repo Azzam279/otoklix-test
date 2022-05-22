@@ -78,6 +78,13 @@ func (*blogController) GetBlog(response http.ResponseWriter, request *http.Reque
 	params := mux.Vars(request)
 	id, _ := strconv.Atoi(params["id"])
 
+	if id == 0 {
+		// Display JSON error
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"error": "Id is required"}`))
+		return
+	}
+	// Get blog by id
 	blog := blogService.GetBlog(id)
 
 	if blog.ID != 0 {
@@ -96,18 +103,25 @@ func (*blogController) UpdateBlog(response http.ResponseWriter, request *http.Re
 	// Get id blog
 	params := mux.Vars(request)
 	id, _ := strconv.Atoi(params["id"])
+
+	if id == 0 {
+		// Display JSON error
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"error": "Id is required"}`))
+		return
+	}
 	// Get blog by id
 	blog := blogService.GetBlog(id)
 
-	if blog.Title != "" && blog.Content != "" {
-		if blog.ID != 0 {
-			var newBlog dto.Blogs
-			err := json.NewDecoder(request.Body).Decode(&newBlog)
-			if err != nil {
-				http.Error(response, err.Error(), http.StatusBadRequest)
-				return
-			}
+	var newBlog dto.Blogs
+	err := json.NewDecoder(request.Body).Decode(&newBlog)
+	if err != nil {
+		http.Error(response, err.Error(), http.StatusBadRequest)
+		return
+	}
 
+	if newBlog.Title != "" && newBlog.Content != "" {
+		if blog.ID != 0 {
 			res := blogService.UpdateBlog(blog, newBlog)
 
 			// output message
@@ -140,6 +154,13 @@ func (*blogController) DeleteBlog(response http.ResponseWriter, request *http.Re
 	params := mux.Vars(request)
 	id, _ := strconv.Atoi(params["id"])
 
+	if id == 0 {
+		// Display JSON error
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"error": "Id is required"}`))
+		return
+	}
+	// Get blog by id
 	blog := blogService.GetBlog(id)
 
 	if blog.ID != 0 {

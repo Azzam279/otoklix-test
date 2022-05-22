@@ -1,18 +1,17 @@
 package service
 
 import (
-	"otoklix/datastruct"
 	"otoklix/dto"
 	"otoklix/repository"
 	"time"
 )
 
 type BlogService interface {
-	CreateBlog(blog dto.Blogs) *datastruct.Blogs
-	GetBlogs() *[]datastruct.Blogs
-	GetBlog(id int) *datastruct.Blogs
-	UpdateBlog(blog *datastruct.Blogs, newBlog dto.Blogs) *datastruct.Blogs
-	DeleteBlog(blog *datastruct.Blogs) *datastruct.Blogs
+	CreateBlog(blog dto.Blogs) *dto.Blogs
+	GetBlogs() *[]dto.Blogs
+	GetBlog(id int) *dto.Blogs
+	UpdateBlog(blog *dto.Blogs, newBlog dto.Blogs) *dto.Blogs
+	DeleteBlog(blog *dto.Blogs) *dto.Blogs
 }
 
 type blogService struct{}
@@ -26,8 +25,8 @@ func NewBlogService(repository repository.BlogRepository) BlogService {
 	return &blogService{}
 }
 
-func (*blogService) CreateBlog(blog dto.Blogs) *datastruct.Blogs {
-	blogInfo := datastruct.Blogs{
+func (*blogService) CreateBlog(blog dto.Blogs) *dto.Blogs {
+	blogInfo := dto.Blogs{
 		ID:          blog.ID,
 		Title:       blog.Title,
 		Content:     blog.Content,
@@ -39,17 +38,17 @@ func (*blogService) CreateBlog(blog dto.Blogs) *datastruct.Blogs {
 	return repo.CreateBlog(blogInfo)
 }
 
-func (*blogService) GetBlogs() *[]datastruct.Blogs {
+func (*blogService) GetBlogs() *[]dto.Blogs {
 	return repo.GetBlogs()
 }
 
-func (*blogService) GetBlog(id int) *datastruct.Blogs {
+func (*blogService) GetBlog(id int) *dto.Blogs {
 	return repo.GetBlog(id)
 }
 
-func (*blogService) UpdateBlog(blog *datastruct.Blogs, newBlog dto.Blogs) *datastruct.Blogs {
+func (*blogService) UpdateBlog(blog *dto.Blogs, newBlog dto.Blogs) *dto.Blogs {
 	today, _ := time.Now().Local().MarshalText()
-	result := datastruct.Blogs{
+	result := dto.Blogs{
 		Title:     newBlog.Title,
 		Content:   newBlog.Content,
 		UpdatedAt: string(today),
@@ -58,6 +57,6 @@ func (*blogService) UpdateBlog(blog *datastruct.Blogs, newBlog dto.Blogs) *datas
 	return repo.UpdateBlog(blog, result)
 }
 
-func (*blogService) DeleteBlog(blog *datastruct.Blogs) *datastruct.Blogs {
+func (*blogService) DeleteBlog(blog *dto.Blogs) *dto.Blogs {
 	return repo.DeleteBlog(blog)
 }
